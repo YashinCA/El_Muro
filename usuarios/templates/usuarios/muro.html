@@ -1,0 +1,145 @@
+{% extends "app/base.html" %}
+{% block titulo %}Formulario de Usuarios{% endblock %}
+{% block estilo %}
+
+
+<style>
+
+    .comentariodiv label {
+    width: 0px;
+    padding: 0px 0px 0px 0px;
+    margin: 0px 0px 0px 0px;
+
+}
+    .clasemensajes p{
+    padding: 0px 0px 0px 0px;
+    margin: 0px 0px 0px 0px;
+
+}
+.clasecomentarios p{
+    padding: 0px 0px 0px 0px;
+    margin: 0px 0px 0px 0px;
+
+}
+
+.col-form-label {
+    width: 0px;
+    padding: 0px 0px 0px 0px;
+    margin: 0px 0px 0px 0px;
+}
+
+</style>
+
+
+
+
+{% endblock  %}
+{% block contenido %}
+<div class="container postdiv mt-3">
+    <div class="container mt-1">
+    <h1>Postea tus novedades</h1>
+    <hr>
+    </div>
+    <div class='row'>
+        <div class='container col-6 align-content-center justify-content-center'>
+            <form class='' action='' method='post'>
+                {% csrf_token %}
+                {{ formModel.non_field_errors }}
+
+                {% for field in formModel %}
+                <div class="mb-2">
+                    <label for="{{ field.id_for_label }}" class="col-4 col-form-label">{{ field.label }}</label>
+                    <div class="col-12">
+                        {{ field }}
+                    </div>
+
+                    {% if field.errors %}
+
+                    <div class="alert alert-danger mt-2" role="alert">
+                        {% for error in field.errors %}
+                        {{ error }}
+                        {% endfor %}
+                    </div>
+
+                    {% endif %}
+
+                    {% if field.help_text %}
+                    <p class="help">{{ field.help_text|safe }}</p>
+                    {% endif %}
+                </div>
+                {% endfor %}
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button class="btn btn-success d-flex mb-2" type="submit">Postea un Mensaje</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class='row comentariodiv'>
+        <div class='container col-6 align-content-center justify-content-center'>
+            <hr>
+            {% for mensaje in mensajes %}
+            <div class='clasemensajes'>
+                <p>{{mensaje.usuario.nombre}} {{mensaje.usuario.apellido}} <strong>({{mensaje.usuario.username}})</strong> - {{mensaje.created_at}}:</p>
+                <p>{{mensaje.mensaje}} 
+                {% comment %} {% if request.session.usuario.id == mensaje.usuario.id%}
+                <a href="#">Eliminar Publicación</a>
+                {% endif %} {% endcomment %}
+            </p>
+
+            </div>
+            <div class='clasecomentarios'>
+                {% if mensaje.comentarios_mensaje.all %}
+                <p> <strong>Comentarios:</strong> </p>
+                {% for comentario in mensaje.comentarios_mensaje.all  %}
+                <p>{{comentario.usuario.nombre}} {{comentario.usuario.apellido}} <strong>({{comentario.usuario.username}})</strong> - {{comentario.created_at}}:</p>
+                <p>{{comentario.comentario}}{% if request.session.usuario.id == comentario.usuario.id%} - 
+                <a href='{% url 'usuarios:deletecomentario' pkcomment=comentario.id %}'>Eliminar</a>
+                {% endif %}</p>
+                
+                
+                {% endfor %}
+                {% endif %}
+            </div>
+            <form class='' action='{% url 'usuarios:comentario' pk=mensaje.id %}' method='post'>
+                {% csrf_token %}
+                {{ formModel_comentario.non_field_errors }}
+        
+                {% for field in formModel_comentario %}
+                <div class=" mb-2">
+                    <label for="{{ field.id_for_label }}" class="">{{ field.label }}</label>
+                    <div class="col-12">
+                        {{ field }}
+                    </div>
+        
+                    {% if field.errors %}
+        
+                    <div class="alert alert-danger mt-1" role="alert">
+                        {% for error in field.errors %}
+                        {{ error }}
+                        {% endfor %}
+                    </div>
+        
+                    {% endif %}
+        
+                    {% if field.help_text %}
+                    <p class="help">{{ field.help_text|safe }}</p>
+                    {% endif %}
+                </div>
+                {% endfor %}
+                <div class="d-grid gap-2 d-md-flex justify-content-md-end">
+                    <button class="btn btn-success d-flex mb-2" type="submit">Comentar</button>
+                </div>
+            </form>
+            <hr>
+            {% endfor %}
+        </div>
+    </div>
+    {% comment %} <p>{{request.session.usuario.nombre}}</p>
+    <p>{{request.session.usuario.id}}</p>
+    <p>{{request.session.usuario}}</p>
+    {% for comentario in comentarios_mensajes %}
+    <p>{{comentario.comentario}}</p>
+    {% endfor %}
+    <p>{{comentarios_mensajes}}</p> {% endcomment %}
+</div>
+{% endblock  %}
